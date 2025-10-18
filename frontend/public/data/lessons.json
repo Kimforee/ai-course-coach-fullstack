@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "course": 1,
+    "title": "Introduction to Python",
+    "tags": ["basics", "syntax", "variables"],
+    "order_index": 1,
+    "difficulty": 1,
+    "completed": true
+  },
+  {
+    "id": 2,
+    "course": 1,
+    "title": "Data Types and Variables",
+    "tags": ["data-types", "variables", "strings"],
+    "order_index": 2,
+    "difficulty": 1,
+    "completed": true
+  },
+  {
+    "id": 3,
+    "course": 1,
+    "title": "Control Flow - If Statements",
+    "tags": ["control-flow", "conditionals", "logic"],
+    "order_index": 3,
+    "difficulty": 2,
+    "completed": false
+  },
+  {
+    "id": 4,
+    "course": 1,
+    "title": "Loops and Iteration",
+    "tags": ["loops", "iteration", "for", "while"],
+    "order_index": 4,
+    "difficulty": 2,
+    "completed": false
+  },
+  {
+    "id": 5,
+    "course": 1,
+    "title": "Functions and Scope",
+    "tags": ["functions", "scope", "parameters", "return"],
+    "order_index": 5,
+    "difficulty": 3,
+    "completed": false
+  },
+  {
+    "id": 6,
+    "course": 2,
+    "title": "JavaScript Fundamentals",
+    "tags": ["basics", "syntax", "variables"],
+    "order_index": 1,
+    "difficulty": 1,
+    "completed": true
+  },
+  {
+    "id": 7,
+    "course": 2,
+    "title": "DOM Manipulation",
+    "tags": ["dom", "html", "elements", "events"],
+    "order_index": 2,
+    "difficulty": 2,
+    "completed": true
+  },
+  {
+    "id": 8,
+    "course": 2,
+    "title": "Event Handling",
+    "tags": ["events", "listeners", "interaction"],
+    "order_index": 3,
+    "difficulty": 2,
+    "completed": false
+  },
+  {
+    "id": 9,
+    "course": 2,
+    "title": "Async Programming",
+    "tags": ["async", "promises", "await", "fetch"],
+    "order_index": 4,
+    "difficulty": 4,
+    "completed": false
+  },
+  {
+    "id": 10,
+    "course": 3,
+    "title": "React Components",
+    "tags": ["components", "jsx", "props", "state"],
+    "order_index": 1,
+    "difficulty": 2,
+    "completed": false
+  },
+  {
+    "id": 11,
+    "course": 3,
+    "title": "Hooks and State Management",
+    "tags": ["hooks", "useState", "useEffect", "state"],
+    "order_index": 2,
+    "difficulty": 3,
+    "completed": false
+  },
+  {
+    "id": 12,
+    "course": 3,
+    "title": "Routing and Navigation",
+    "tags": ["routing", "navigation", "react-router"],
+    "order_index": 3,
+    "difficulty": 3,
+    "completed": false
+  }
+]
