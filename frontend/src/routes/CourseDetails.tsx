@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import LessonCard from '../components/LessonCard'
-import CodeAttemptViewer from '../components/CodeAttemptViewer'
+import LessonCard from '../components/LessonCard.jsx'
+import CodeAttemptViewer from '../components/CodeAttemptViewer.jsx'
 
 export default function CourseDetails() {
   const { courseId } = useParams<{ courseId: string }>()
