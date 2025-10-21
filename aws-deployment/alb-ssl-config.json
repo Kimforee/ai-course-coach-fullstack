@@ -1,0 +1,33 @@
+{
+  "Listeners": [
+    {
+      "Port": 80,
+      "Protocol": "HTTP",
+      "DefaultActions": [
+        {
+          "Type": "redirect",
+          "RedirectConfig": {
+            "Protocol": "HTTPS",
+            "Port": "443",
+            "StatusCode": "HTTP_301"
+          }
+        }
+      ]
+    },
+    {
+      "Port": 443,
+      "Protocol": "HTTPS",
+      "Certificates": [
+        {
+          "CertificateArn": "YOUR_CERTIFICATE_ARN_HERE"
+        }
+      ],
+      "DefaultActions": [
+        {
+          "Type": "forward",
+          "TargetGroupArn": "YOUR_TARGET_GROUP_ARN_HERE"
+        }
+      ]
+    }
+  ]
+}
