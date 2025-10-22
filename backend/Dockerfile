@@ -25,7 +25,7 @@ COPY . .
 RUN mkdir -p /app/staticfiles /app/logs
 
 # Set Django settings for production
-ENV DJANGO_SETTINGS_MODULE=app.settings_prod
+ENV DJANGO_SETTINGS_MODULE=app.app.settings_prod
 
 # Collect static files
 RUN python manage.py collectstatic --noinput
