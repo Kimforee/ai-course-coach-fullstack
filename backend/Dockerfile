@@ -33,5 +33,24 @@ RUN python manage.py collectstatic --noinput --settings=app.settings_prod
 # Expose port
 EXPOSE 8000
 
+# Create startup script
+RUN echo '#!/bin/bash\n\
+echo "Testing WSGI configuration..."\n\
+python test_wsgi.py\n\
+if [ $? -eq 0 ]; then\n\
+    echo "WSGI test passed. Starting database check..."\n\
+    python check_db.py\n\
+    if [ $? -eq 0 ]; then\n\
+        echo "Database check passed. Starting Django application..."\n\
+        exec gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 wsgi:application\n\
+    else\n\
+        echo "Database check failed. Exiting..."\n\
+        exit 1\n\
+    fi\n\
+else\n\
+    echo "WSGI test failed. Exiting..."\n\
+    exit 1\n\
+fi' > /app/start.sh && chmod +x /app/start.sh
+
 # Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "app.wsgi:application"]
+CMD ["/app/start.sh"]

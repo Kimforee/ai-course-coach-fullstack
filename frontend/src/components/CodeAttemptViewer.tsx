@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { analyze } from '../ai/codeChecks'
+import { codeAnalysisApi, ApiError } from '../services/api'
 
 type Props = {
   courseId: string
@@ -9,24 +9,32 @@ export default function CodeAttemptViewer({ courseId }: Props) {
   const [code, setCode] = useState('')
   const [issues, setIssues] = useState<any[]>([])
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleAnalyze = async () => {
     if (!code.trim()) {
       setIssues([])
+      setError(null)
       return
     }
 
     setIsAnalyzing(true)
+    setError(null)
     
     try {
-      // Use our AST-based code analysis
-      const analysisResults = analyze(code)
-      setIssues(analysisResults)
-    } catch (error) {
-      console.error('Analysis error:', error)
+      // Use backend API for code analysis
+      const response = await codeAnalysisApi.analyze(code)
+      setIssues(response.issues)
+    } catch (err) {
+      console.error('Analysis error:', err)
+      if (err instanceof ApiError) {
+        setError(`API Error: ${err.message}`)
+      } else {
+        setError('Failed to analyze code')
+      }
       setIssues([{
         rule: 'analysis-error',
-        message: `Failed to analyze code: ${error}`,
+        message: `Failed to analyze code: ${err instanceof Error ? err.message : 'Unknown error'}`,
         severity: 'error'
       }])
     } finally {
@@ -90,7 +98,17 @@ export default function CodeAttemptViewer({ courseId }: Props) {
           )}
         </h3>
 
-        {issues.length === 0 && code.trim() && (
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <div className="flex items-center space-x-2">
+              <span className="text-red-600">⚠️</span>
+              <p className="text-red-800 font-medium">Analysis Error</p>
+            </div>
+            <p className="text-red-700 text-sm mt-1">{error}</p>
+          </div>
+        )}
+
+        {issues.length === 0 && code.trim() && !error && (
           <div className="text-center py-8 text-gray-500">
             <div className="text-4xl mb-2">✅</div>
             <p>No issues found! Your code looks good.</p>
@@ -141,15 +159,18 @@ export default function CodeAttemptViewer({ courseId }: Props) {
         )}
       </div>
 
-      {/* AST Rules Info */}
+      {/* Backend Analysis Rules Info */}
       <div className="bg-gray-50 rounded-lg p-4">
-        <h4 className="font-semibold text-sm mb-2">Available Analysis Rules</h4>
+        <h4 className="font-semibold text-sm mb-2">Backend Analysis Rules</h4>
         <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
-          <div>• Unused variables</div>
-          <div>• Off-by-one for loops</div>
-          <div>• Missing return statements</div>
-          <div>• Duplicate code blocks</div>
+          <div>• Unused function arguments</div>
+          <div>• Bare except clauses</div>
+          <div>• Print statements</div>
+          <div>• Syntax errors</div>
         </div>
+        <p className="text-xs text-gray-500 mt-2">
+          Powered by Django backend with AST analysis
+        </p>
       </div>
     </div>
   )

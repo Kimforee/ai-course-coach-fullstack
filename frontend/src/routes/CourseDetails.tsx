@@ -2,29 +2,41 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import LessonCard from '../components/LessonCard.jsx'
 import CodeAttemptViewer from '../components/CodeAttemptViewer.jsx'
+import { courseApi, ApiError } from '../services/api'
 
 export default function CourseDetails() {
   const { courseId } = useParams<{ courseId: string }>()
   const [course, setCourse] = useState<any>(null)
   const [lessons, setLessons] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Load course and lessons data
-    Promise.all([
-      fetch('/data/courses.json').then(r => r.json()),
-      fetch('/data/lessons.json').then(r => r.json())
-    ]).then(([courses, allLessons]) => {
-      const currentCourse = courses.find((c: any) => c.id.toString() === courseId)
-      const courseLessons = allLessons.filter((l: any) => l.course === parseInt(courseId || '0'))
+    const loadCourseData = async () => {
+      if (!courseId) return
       
-      setCourse(currentCourse)
-      setLessons(courseLessons)
-      setLoading(false)
-    }).catch(err => {
-      console.error('Error loading course data:', err)
-      setLoading(false)
-    })
+      try {
+        setLoading(true)
+        setError(null)
+        
+        // Load course details (includes lessons)
+        const courseData = await courseApi.getDetail(parseInt(courseId))
+        setCourse(courseData)
+        setLessons(courseData.lessons)
+        
+      } catch (err) {
+        console.error('Error loading course data:', err)
+        if (err instanceof ApiError) {
+          setError(`API Error: ${err.message}`)
+        } else {
+          setError('Failed to load course data')
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadCourseData()
   }, [courseId])
 
   if (loading) {
@@ -34,6 +46,22 @@ export default function CourseDetails() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
           <p className="mt-2 text-gray-600">Loading course details...</p>
         </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-600 text-6xl mb-4">⚠️</div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Course</h2>
+        <p className="text-gray-600 mb-6">{error}</p>
+        <Link 
+          to="/" 
+          className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+        >
+          ← Back to Dashboard
+        </Link>
       </div>
     )
   }
@@ -86,14 +114,17 @@ export default function CourseDetails() {
           <div className="flex-1">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-gray-700">Overall Progress</span>
-              <span className="text-sm text-gray-600">{course.progress}%</span>
+              <span className="text-sm text-gray-600">0%</span>
             </div>
             <div className="w-full rounded-xl bg-gray-200 h-3 overflow-hidden">
               <div
                 className="h-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500 ease-out"
-                style={{ width: `${course.progress}%` }}
+                style={{ width: '0%' }}
               />
             </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Progress tracking will be available when you start taking lessons
+            </p>
           </div>
         </div>
       </div>

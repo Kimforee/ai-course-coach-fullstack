@@ -164,6 +164,9 @@ secrets/
 # Test files
 test-results/
 coverage/
+test-build.sh
+backend/test_wsgi.py
+backend/check_db.py
 
 # Local development
 local/

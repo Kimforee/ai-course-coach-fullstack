@@ -1,5 +1,10 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 BASE_DIR=Path(__file__).resolve().parent.parent
 SECRET_KEY=os.environ.get('SECRET_KEY','dev-secret-key')
 DEBUG=True
@@ -18,3 +23,13 @@ USE_TZ=True
 STATIC_URL='static/'
 DEFAULT_AUTO_FIELD='django.db.models.BigAutoField'
 REST_FRAMEWORK={'DEFAULT_PAGINATION_CLASS':'rest_framework.pagination.PageNumberPagination','PAGE_SIZE':10}
+
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = False  # For development only

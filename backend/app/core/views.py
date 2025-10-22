@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.throttling import UserRateThrottle
 from django.db.models import Avg
 from .models import Student, Course, Lesson, Attempt
-from .serializers import CourseSerializer, AttemptCreateSerializer
+from .serializers import CourseSerializer, LessonSerializer, AttemptCreateSerializer
 from .services.recommender import score_candidate, to_confidence
 
 class WriteThrottle(UserRateThrottle):
@@ -56,6 +56,14 @@ def create_attempt(request):
 def analyze_code(request):
     import ast
     code=request.data.get('code','')
+    
+    # Input validation
+    if not code:
+        return Response({'error': 'Code is required'}, status=400)
+    
+    if len(code) > 10000:  # Limit code size
+        return Response({'error': 'Code too large (max 10KB)'}, status=400)
+    
     issues=[]
     try:
         tree=ast.parse(code)
@@ -81,3 +89,28 @@ def analyze_code(request):
     except SyntaxError as e:
         issues.append({'rule':'syntax-error','message':str(e),'severity':'error'})
     return Response({'issues':issues})
+
+@api_view(['GET'])
+def course_detail(request, pk: int):
+    try:
+        course = Course.objects.prefetch_related('lessons').get(pk=pk)
+        serializer = CourseSerializer(course)
+        return Response(serializer.data)
+    except Course.DoesNotExist:
+        return Response({'detail': 'Course not found'}, status=404)
+
+@api_view(['GET'])
+def course_list(request):
+    courses = Course.objects.prefetch_related('lessons').all()
+    serializer = CourseSerializer(courses, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def lesson_list(request, course_id: int):
+    try:
+        course = Course.objects.get(pk=course_id)
+        lessons = course.lessons.all()
+        serializer = LessonSerializer(lessons, many=True)
+        return Response(serializer.data)
+    except Course.DoesNotExist:
+        return Response({'detail': 'Course not found'}, status=404)

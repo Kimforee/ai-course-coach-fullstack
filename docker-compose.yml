@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Using Neon Database (external) - no local db needed
 
@@ -8,6 +6,7 @@ services:
     build: ./backend
     environment:
       - DEBUG=False
+      - DJANGO_SETTINGS_MODULE=app.settings_prod
       - DB_NAME=neondb
       - DB_USER=neondb_owner
       - DB_PASSWORD=${DB_PASSWORD}
@@ -19,9 +18,11 @@ services:
     ports:
       - "8000:8000"
     command: >
-      sh -c "python manage.py migrate &&
+      sh -c "python test_wsgi.py &&
+             python check_db.py &&
+             python manage.py migrate &&
              python manage.py seed_demo &&
-             gunicorn --bind 0.0.0.0:8000 --workers 3 app.wsgi:application"
+             gunicorn --bind 0.0.0.0:8000 --workers 3 wsgi:application"
 
   # React Frontend
   frontend:
