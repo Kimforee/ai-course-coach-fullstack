@@ -1,4 +1,4 @@
-name: Simple Deploy
+name: Minimal Deploy (Free Tier)
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Create ECR repositories if they don't exist
+    - name: Create ECR repositories (Free Tier)
       run: |
         aws ecr describe-repositories --repository-names codingal-backend --region $AWS_REGION || \
         aws ecr create-repository --repository-name codingal-backend --region $AWS_REGION
@@ -56,16 +56,11 @@ jobs:
         docker push $ECR_REGISTRY/codingal-frontend:$IMAGE_TAG
         docker push $ECR_REGISTRY/codingal-frontend:latest
 
-    - name: Deploy infrastructure with Terraform
-      working-directory: ./aws-deployment/terraform
-      run: |
-        terraform init
-        terraform plan -var="db_password=${{ secrets.DB_PASSWORD }}"
-        terraform apply -auto-approve -var="db_password=${{ secrets.DB_PASSWORD }}"
-
     - name: Output deployment info
       run: |
-        echo "🚀 Deployment completed successfully!"
+        echo "🚀 SUCCESS! Docker images built and pushed!"
         echo "Backend ECR: $(aws ecr describe-repositories --repository-names codingal-backend --query 'repositories[0].repositoryUri' --output text)"
         echo "Frontend ECR: $(aws ecr describe-repositories --repository-names codingal-frontend --query 'repositories[0].repositoryUri' --output text)"
-        echo "Check AWS ECS console for your application URL"
+        echo ""
+        echo "✅ Your images are ready for deployment!"
+        echo "Next: Use AWS ECS or EC2 to run these images"
