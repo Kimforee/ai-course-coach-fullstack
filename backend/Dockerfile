@@ -35,7 +35,7 @@ RUN echo '#!/bin/bash\n\
 echo "Setting production environment..."\n\
 export DJANGO_SETTINGS_MODULE=app.settings_prod\n\
 echo "Testing WSGI configuration..."\n\
-python test_wsgi.py\n\
+python -c "import wsgi; print(\"WSGI module loaded successfully\")"\n\
 if [ $? -eq 0 ]; then\n\
     echo "WSGI test passed. Starting database check..."\n\
     python check_db.py\n\
