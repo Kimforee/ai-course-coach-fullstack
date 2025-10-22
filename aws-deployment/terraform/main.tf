@@ -64,6 +64,10 @@ resource "aws_ecr_repository" "backend" {
   image_scanning_configuration {
     scan_on_push = true
   }
+  
+  lifecycle {
+    ignore_changes = [name]
+  }
 }
 
 resource "aws_ecr_repository" "frontend" {
@@ -72,6 +76,10 @@ resource "aws_ecr_repository" "frontend" {
 
   image_scanning_configuration {
     scan_on_push = true
+  }
+  
+  lifecycle {
+    ignore_changes = [name]
   }
 }
 
@@ -107,7 +115,7 @@ resource "aws_security_group" "rds" {
 resource "aws_db_instance" "main" {
   identifier = "codingal-db"
   engine     = "postgres"
-  engine_version = "15.4"
+  engine_version = "15.7"
   instance_class = "db.t3.micro"
   allocated_storage = 20
   max_allocated_storage = 100

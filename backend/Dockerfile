@@ -21,8 +21,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project
 COPY . .
 
-# Create staticfiles directory
-RUN mkdir -p /app/staticfiles
+# Create required directories
+RUN mkdir -p /app/staticfiles /app/logs
 
 # Set Django settings for production
 ENV DJANGO_SETTINGS_MODULE=app.settings_prod
