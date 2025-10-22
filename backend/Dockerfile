@@ -1,5 +1,5 @@
 # Use Python 3.11 image with more packages
-FROM python:3.11
+FROM python:3.11-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
