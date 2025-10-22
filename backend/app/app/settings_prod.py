@@ -22,6 +22,10 @@ DATABASES = {
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# Ensure staticfiles directory exists
+import os
+os.makedirs(STATIC_ROOT, exist_ok=True)
+
 # Security settings
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 SECURE_BROWSER_XSS_FILTER = True
