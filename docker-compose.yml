@@ -18,9 +18,7 @@ services:
     ports:
       - "8000:8000"
     command: >
-      sh -c "python test_wsgi.py &&
-             python check_db.py &&
-             python manage.py migrate &&
+      sh -c "python manage.py migrate &&
              python manage.py seed_demo &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 wsgi:application"
 
