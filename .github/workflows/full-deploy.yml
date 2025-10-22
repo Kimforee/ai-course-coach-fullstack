@@ -1,0 +1,94 @@
+name: Full Stack Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  DB_NAME: ${{ secrets.DB_NAME }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_PORT: ${{ secrets.DB_PORT }}
+  ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+  CORS_ALLOWED_ORIGINS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
+  DEBUG: ${{ secrets.DEBUG }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@vv4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Create ECR repositories
+      run: |
+        aws ecr describe-repositories --repository-names codingal-backend --region $AWS_REGION || \
+        aws ecr create-repository --repository-name codingal-backend --region $AWS_REGION
+        aws ecr describe-repositories --repository-names codingal-frontend --region $AWS_REGION || \
+        aws ecr create-repository --repository-name codingal-frontend --region $AWS_REGION
+
+    - name: Build and push backend
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        cd backend
+        docker build -t $ECR_REGISTRY/codingal-backend:$IMAGE_TAG .
+        docker tag $ECR_REGISTRY/codingal-backend:$IMAGE_TAG $ECR_REGISTRY/codingal-backend:latest
+        docker push $ECR_REGISTRY/codingal-backend:$IMAGE_TAG
+        docker push $ECR_REGISTRY/codingal-backend:latest
+
+    - name: Build and push frontend
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        cd frontend
+        docker build -t $ECR_REGISTRY/codingal-frontend:$IMAGE_TAG .
+        docker tag $ECR_REGISTRY/codingal-frontend:$IMAGE_TAG $ECR_REGISTRY/codingal-frontend:latest
+        docker push $ECR_REGISTRY/codingal-frontend:$IMAGE_TAG
+        docker push $ECR_REGISTRY/codingal-frontend:latest
+
+    - name: Deploy infrastructure with Terraform
+      working-directory: ./aws-deployment/terraform
+      run: |
+        terraform init
+        terraform plan -var="db_password=${{ secrets.DB_PASSWORD }}"
+        terraform apply -auto-approve -var="db_password=${{ secrets.DB_PASSWORD }}"
+
+    - name: Deploy to ECS
+      run: |
+        # Get ECR repository URLs
+        BACKEND_URI=$(aws ecr describe-repositories --repository-names codingal-backend --query 'repositories[0].repositoryUri' --output text)
+        FRONTEND_URI=$(aws ecr describe-repositories --repository-names codingal-frontend --query 'repositories[0].repositoryUri' --output text)
+        
+        # Create ECS cluster
+        aws ecs create-cluster --cluster-name codingal-cluster --region $AWS_REGION || echo "Cluster already exists"
+        
+        # Register task definition
+        aws ecs register-task-definition \
+          --cli-input-json file://../aws-deployment/ecs-task-definition.json \
+          --region $AWS_REGION
+
+    - name: Output deployment info
+      run: |
+        echo "🚀 Deployment completed successfully!"
+        echo "Backend ECR: $(aws ecr describe-repositories --repository-names codingal-backend --query 'repositories[0].repositoryUri' --output text)"
+        echo "Frontend ECR: $(aws ecr describe-repositories --repository-names codingal-frontend --query 'repositories[0].repositoryUri' --output text)"
+        echo "Check AWS ECS console for your application URL"

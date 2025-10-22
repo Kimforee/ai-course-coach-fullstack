@@ -133,6 +133,14 @@ temp/
 # AWS
 .aws/
 
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+terraform.tfvars
+terraform.tfvars.json
+
 # Secrets
 secrets/
 *.pem
@@ -157,3 +165,23 @@ coverage/
 local/
 dev/env.template
 env.production.template
+
+# Security - NEVER commit these
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+credentials/
+.aws/
+aws-credentials.json
+
+# Generated files with secrets
+generate-secret-key.py
+GITHUB-ACTIONS-SETUP.md
+
+# Temporary files
+*.tmp
+*.temp
+*.log
