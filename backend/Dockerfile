@@ -24,17 +24,16 @@ COPY . .
 # Create required directories
 RUN mkdir -p /app/staticfiles /app/logs
 
-# Set Django settings for production
-ENV DJANGO_SETTINGS_MODULE=app.settings_prod
-
-# Collect static files
-RUN python manage.py collectstatic --noinput --settings=app.settings_prod
+# Collect static files using development settings (no DB required)
+RUN python manage.py collectstatic --noinput --settings=app.settings
 
 # Expose port
 EXPOSE 8000
 
 # Create startup script
 RUN echo '#!/bin/bash\n\
+echo "Setting production environment..."\n\
+export DJANGO_SETTINGS_MODULE=app.settings_prod\n\
 echo "Testing WSGI configuration..."\n\
 python test_wsgi.py\n\
 if [ $? -eq 0 ]; then\n\
