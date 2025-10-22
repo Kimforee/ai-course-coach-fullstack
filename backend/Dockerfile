@@ -25,13 +25,13 @@ COPY . .
 RUN mkdir -p /app/staticfiles /app/logs
 
 # Set Django settings for production
-ENV DJANGO_SETTINGS_MODULE=app.app.settings_prod
+ENV DJANGO_SETTINGS_MODULE=app.settings_prod
 
 # Collect static files
-RUN python manage.py collectstatic --noinput
+RUN python manage.py collectstatic --noinput --settings=app.settings_prod
 
 # Expose port
 EXPOSE 8000
 
 # Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "app.app.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "app.wsgi:application"]
