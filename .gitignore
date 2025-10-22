@@ -155,4 +155,5 @@ coverage/
 
 # Local development
 local/
-dev/
+dev/env.template
+env.production.template
