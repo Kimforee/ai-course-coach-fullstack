@@ -1,4 +1,7 @@
-  GNU nano 7.2                                                                                     docker-compose.yml                                                                                              services:
+services:
+  # Using Neon Database (external) - no local db needed
+
+  # Django Backend
   backend:
     build: ./backend
     environment:
@@ -6,12 +9,12 @@
       - DJANGO_SETTINGS_MODULE=app.settings_prod
       - DB_NAME=neondb
       - DB_USER=neondb_owner
-      - DB_PASSWORD=npg_ym3kS5zrQgdn
-      - DB_HOST=ep-long-meadow-afa50phs-pooler.c-2.us-west-2.aws.neon.tech
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
       - DB_PORT=5432
-      - SECRET_KEY=django-insecure-your-secret-key-here
-      - ALLOWED_HOSTS=aws-codingal.page,www.aws-codingal.page,16.171.56.209,localhost,127.0.0.1
-      - CORS_ALLOWED_ORIGINS=http://aws-codingal.page,http://www.aws-codingal.page,http://16.171.56.209,http://localhost:3000
+      - SECRET_KEY=your-production-secret-key-change-this
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:80
     ports:
       - "8000:8000"
     command: >
@@ -19,6 +22,7 @@
              python manage.py seed_demo &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 wsgi:application"
 
+  # React Frontend
   frontend:
     build: ./frontend
     ports:
@@ -26,4 +30,5 @@
     depends_on:
       - backend
     environment:
-      - VITE_API_URL=http://aws-codingal.page:8000/api
+      - VITE_API_URL=/api
+
