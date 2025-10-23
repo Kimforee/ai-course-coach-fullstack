@@ -30,5 +30,5 @@ services:
     depends_on:
       - backend
     environment:
-      - REACT_APP_API_URL=http://localhost:8000/api
+      - VITE_API_URL=http://16.171.56.209:8000/api
 
