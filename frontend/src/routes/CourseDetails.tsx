@@ -22,7 +22,7 @@ export default function CourseDetails() {
         // Load course details (includes lessons)
         const courseData = await courseApi.getDetail(parseInt(courseId))
         setCourse(courseData)
-        setLessons(courseData.lessons)
+        setLessons(courseData.lessons || [])
         
       } catch (err) {
         console.error('Error loading course data:', err)
@@ -94,7 +94,7 @@ export default function CourseDetails() {
                 {course.difficulty <= 2 ? 'Beginner' : course.difficulty <= 4 ? 'Intermediate' : 'Advanced'}
               </span>
               <span className="bg-white/20 px-3 py-1 rounded-full">
-                {lessons.length} lessons
+                {lessons?.length || 0} lessons
               </span>
             </div>
           </div>
@@ -133,12 +133,12 @@ export default function CourseDetails() {
       <div className="bg-white rounded-2xl p-6 shadow-sm">
         <h2 className="text-xl font-semibold mb-6">Lessons</h2>
         <div className="grid gap-4">
-          {lessons.map((lesson, index) => (
+          {(lessons || []).map((lesson, index) => (
             <LessonCard
               key={lesson.id}
               lesson={lesson}
               index={index + 1}
-              total={lessons.length}
+              total={lessons?.length || 0}
             />
           ))}
         </div>
