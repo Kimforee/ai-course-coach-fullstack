@@ -3,12 +3,21 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.throttling import UserRateThrottle
 from django.db.models import Avg
+from django.http import JsonResponse
 from .models import Student, Course, Lesson, Attempt
 from .serializers import CourseSerializer, LessonSerializer, AttemptCreateSerializer
 from .services.recommender import score_candidate, to_confidence
 
 class WriteThrottle(UserRateThrottle):
     rate='30/min'
+
+def health_check(request):
+    """Fast health check endpoint for ALB - no database calls"""
+    return JsonResponse({
+        'status': 'healthy',
+        'service': 'ai-course-coach-backend',
+        'timestamp': '2024-01-01T00:00:00Z'  # Static timestamp for speed
+    }, status=200)
 
 @api_view(['GET'])
 def student_overview(request, pk:int):
