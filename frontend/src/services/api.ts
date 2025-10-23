@@ -45,8 +45,10 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
     
     // If timeout or network error, return mock data
     if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('Failed to fetch'))) {
-      console.log('Database timeout, using mock data');
-      return getMockData(endpoint) as T;
+      console.log('Database timeout, using mock data for endpoint:', endpoint);
+      const mockData = getMockData(endpoint);
+      console.log('Mock data returned:', mockData);
+      return mockData as T;
     }
     
     throw new ApiError(0, `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -90,7 +92,8 @@ function getMockData(endpoint: string): any {
     };
   }
   
-  if (endpoint.includes('/courses/')) {
+  // Handle courses list endpoint (exact match)
+  if (endpoint === '/courses/' || endpoint === '/courses') {
     return [
       {
         id: 1,
@@ -199,6 +202,73 @@ function getMockData(endpoint: string): any {
     };
   }
   
+  // Handle any course detail endpoint that doesn't match above patterns
+  if (endpoint.includes('/courses/') && !endpoint.includes('/lessons/') && endpoint.match(/\/courses\/\d+\/?$/)) {
+    // Extract course ID from endpoint
+    const courseIdMatch = endpoint.match(/\/courses\/(\d+)/);
+    const courseId = courseIdMatch ? parseInt(courseIdMatch[1]) : 1;
+    
+    // Return different course based on ID
+    if (courseId === 1) {
+      return {
+        id: 1,
+        name: "Python Fundamentals",
+        description: "Learn Python from scratch with hands-on projects. This course covers everything from basic syntax to advanced concepts like object-oriented programming.",
+        difficulty: 1,
+        lessons: [
+          { id: 1, title: "Introduction to Python", tags: ["basics", "setup"], order_index: 1 },
+          { id: 2, title: "Variables and Data Types", tags: ["basics", "variables"], order_index: 2 },
+          { id: 3, title: "Control Structures", tags: ["basics", "control"], order_index: 3 },
+          { id: 4, title: "Functions and Modules", tags: ["functions", "modules"], order_index: 4 },
+          { id: 5, title: "Object-Oriented Programming", tags: ["oop", "classes"], order_index: 5 }
+        ]
+      };
+    } else if (courseId === 2) {
+      return {
+        id: 2,
+        name: "Web Development with React",
+        description: "Build modern web applications using React and JavaScript. Learn to create interactive user interfaces and manage application state.",
+        difficulty: 2,
+        lessons: [
+          { id: 6, title: "HTML and CSS Basics", tags: ["html", "css"], order_index: 1 },
+          { id: 7, title: "JavaScript Fundamentals", tags: ["javascript", "es6"], order_index: 2 },
+          { id: 8, title: "React Components", tags: ["react", "components"], order_index: 3 },
+          { id: 9, title: "State Management", tags: ["react", "state"], order_index: 4 },
+          { id: 10, title: "API Integration", tags: ["api", "fetch"], order_index: 5 }
+        ]
+      };
+    } else if (courseId === 3) {
+      return {
+        id: 3,
+        name: "Data Science with Python",
+        description: "Analyze data and build machine learning models. Master data manipulation, visualization, and machine learning techniques.",
+        difficulty: 3,
+        lessons: [
+          { id: 11, title: "NumPy and Pandas", tags: ["numpy", "pandas"], order_index: 1 },
+          { id: 12, title: "Data Visualization", tags: ["matplotlib", "seaborn"], order_index: 2 },
+          { id: 13, title: "Machine Learning Basics", tags: ["sklearn", "ml"], order_index: 3 },
+          { id: 14, title: "Deep Learning with TensorFlow", tags: ["tensorflow", "neural-networks"], order_index: 4 },
+          { id: 15, title: "Data Analysis Project", tags: ["project", "analysis"], order_index: 5 }
+        ]
+      };
+    } else {
+      // Default fallback
+      return {
+        id: courseId,
+        name: "Python Fundamentals",
+        description: "Learn Python from scratch with hands-on projects. This course covers everything from basic syntax to advanced concepts like object-oriented programming.",
+        difficulty: 1,
+        lessons: [
+          { id: 1, title: "Introduction to Python", tags: ["basics", "setup"], order_index: 1 },
+          { id: 2, title: "Variables and Data Types", tags: ["basics", "variables"], order_index: 2 },
+          { id: 3, title: "Control Structures", tags: ["basics", "control"], order_index: 3 },
+          { id: 4, title: "Functions and Modules", tags: ["functions", "modules"], order_index: 4 },
+          { id: 5, title: "Object-Oriented Programming", tags: ["oop", "classes"], order_index: 5 }
+        ]
+      };
+    }
+  }
+  
   if (endpoint.includes('/students/1/recommendation/')) {
     return {
       recommendation: { id: "4", title: "Functions and Modules" },
@@ -220,6 +290,29 @@ function getMockData(endpoint: string): any {
       { id: 4, title: "Functions and Modules", tags: ["functions", "modules"], order_index: 4 },
       { id: 5, title: "Object-Oriented Programming", tags: ["oop", "classes"], order_index: 5 }
     ];
+  }
+  
+  // Handle code analysis endpoint
+  if (endpoint.includes('/analyze-code/')) {
+    return {
+      issues: [
+        {
+          rule: "unused-arg",
+          message: "Function argument 'x' appears unused.",
+          severity: "info"
+        },
+        {
+          rule: "print-call",
+          message: "Avoid print statements; use logging.",
+          severity: "info"
+        }
+      ]
+    };
+  }
+  
+  // Handle attempts endpoint
+  if (endpoint.includes('/attempts/')) {
+    return { id: 1 };
   }
   
   return {};
