@@ -182,6 +182,23 @@ function getMockData(endpoint: string): any {
     };
   }
   
+  // Handle any other course ID
+  if (endpoint.includes('/courses/') && endpoint.match(/\/courses\/\d+\//)) {
+    return {
+      id: 1,
+      name: "Python Fundamentals",
+      description: "Learn Python from scratch with hands-on projects. This course covers everything from basic syntax to advanced concepts like object-oriented programming.",
+      difficulty: 1,
+      lessons: [
+        { id: 1, title: "Introduction to Python", tags: ["basics", "setup"], order_index: 1 },
+        { id: 2, title: "Variables and Data Types", tags: ["basics", "variables"], order_index: 2 },
+        { id: 3, title: "Control Structures", tags: ["basics", "control"], order_index: 3 },
+        { id: 4, title: "Functions and Modules", tags: ["functions", "modules"], order_index: 4 },
+        { id: 5, title: "Object-Oriented Programming", tags: ["oop", "classes"], order_index: 5 }
+      ]
+    };
+  }
+  
   if (endpoint.includes('/students/1/recommendation/')) {
     return {
       recommendation: { id: "4", title: "Functions and Modules" },
@@ -192,6 +209,17 @@ function getMockData(endpoint: string): any {
         { id: "11", title: "NumPy and Pandas" }
       ]
     };
+  }
+  
+  // Handle lessons endpoint
+  if (endpoint.includes('/lessons/')) {
+    return [
+      { id: 1, title: "Introduction to Python", tags: ["basics", "setup"], order_index: 1 },
+      { id: 2, title: "Variables and Data Types", tags: ["basics", "variables"], order_index: 2 },
+      { id: 3, title: "Control Structures", tags: ["basics", "control"], order_index: 3 },
+      { id: 4, title: "Functions and Modules", tags: ["functions", "modules"], order_index: 4 },
+      { id: 5, title: "Object-Oriented Programming", tags: ["oop", "classes"], order_index: 5 }
+    ];
   }
   
   return {};
