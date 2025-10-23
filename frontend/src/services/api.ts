@@ -44,7 +44,7 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
     }
     
     // If timeout or network error, return mock data
-    if (error.name === 'AbortError' || error.message.includes('Failed to fetch')) {
+    if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('Failed to fetch'))) {
       console.log('Database timeout, using mock data');
       return getMockData(endpoint) as T;
     }
